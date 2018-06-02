@@ -80,7 +80,7 @@ function createWaterMaskFromProfile(userId, replyToken) {
     .then((profile) => {
       return downloadProfilePicture(userId, profile.pictureUrl)
     }).then((fileId) => {
-      return createWaterMaskThenReply(fileId, replyToken);
+      return createWaterMaskThenReply(fileId, replyToken, true);
     });
 }
 
@@ -88,7 +88,7 @@ function createWaterMaskFromMessage(messageId, replyToken) {
   console.log('createWaterMaskFromMessage');
   return downloadContent(messageId)
     .then((fileId) => {
-      return createWaterMaskThenReply(fileId, replyToken);
+      return createWaterMaskThenReply(fileId, replyToken, false);
     });
 }
 
@@ -115,13 +115,23 @@ function downloadContent(messageId) {
     }));
 }
 
-function createWaterMaskThenReply(fileId, replyToken) {
+function createWaterMaskThenReply(fileId, replyToken, firstTime) {
   console.log('createWaterMaskThenReply');
   return addWaterMask(fileId)
     .then(() => {
       return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
     }).then(() => {
-      return line.replyMessage(replyToken, [createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId))]);
+      let ms;
+      if (firstTime) {
+        ms = [
+          createTextMessage('ขอบคุณที่สนใจ\n- นี่คือรูปจากโปรไฟล์ไลน์ของคุณ\n- คุณสามารถใช้รูปอื่นได้ โดยการส่งรูปให้กับบอททางนี้ได้เลย\n- แบ่งปันบอทนี้ให้เพื่อนง่ายๆ แค่แชร์ข้อความข้างล่างนี้ ให้เพื่อนของคุณ'),
+          createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId)),
+          createTextMessage('สร้างรูปโปรไฟล์ React BKK 3.0.0 ง่ายๆ ได้ที่\nline://ti/p/@zya0740l'),
+        ];
+      } else {
+        ms = [createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId))];
+      }
+      return line.replyMessage(replyToken, ms);
     }).catch((error) => { console.log('createWaterMaskThenReply Error', error + '') })
 }
 

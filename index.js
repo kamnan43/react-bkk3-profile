@@ -66,6 +66,7 @@ function handleEvent(event) {
         // return createWaterMaskFromProfile(userId, replyToken);
       }
     case 'follow':
+    case 'join':
       return createWaterMaskFromProfile(userId, replyToken);
   }
 }

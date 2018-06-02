@@ -59,10 +59,13 @@ function handleEvent(event) {
           return line.getProfile(userId)
             .then((profile) => {
               return downloadProfilePicture(userId, profile.pictureUrl)
-            })
-            .then(() => {
-              return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
-            });
+            }).then(() => {
+              return addWaterMask(userId);
+            }).then(() => {
+              return cp.execSync(`convert -resize 240x ${getReactPath(userId)} ${getReactPreviewPath(userId)}`);
+            }).then(() => {
+              return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactPreviewUrl(userId))]);
+            }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
       }
     case 'follow':
       return line.getProfile(userId)
@@ -153,7 +156,7 @@ function addWaterMask(userId) {
         console.log('B64');
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
-        fs.writeFile(getProfilePath(userId), buf);
+        fs.writeFile(getReactPath(userId), buf);
         resolve();
       }).catch((error) => {
         console.log('mergeImages Error', error + '');

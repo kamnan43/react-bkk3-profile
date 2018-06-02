@@ -68,11 +68,10 @@ function handleEvent(event) {
       return line.getProfile(userId)
         .then((profile) => {
           return downloadProfilePicture(userId, profile.pictureUrl)
-        })
-        .then(() => {
-          return cp.execSync(`convert -resize 240x ${getProfilePath(userId)} ${getProfilePreviewPath(userId)}`);
         }).then(() => {
           return addWaterMask(userId);
+        }).then(() => {
+          return cp.execSync(`convert -resize 240x ${getProfilePath(userId)} ${getProfilePreviewPath(userId)}`);
         }).then(() => {
           return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
         }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
@@ -147,7 +146,7 @@ function addWaterMask(userId) {
     const mergeImages = require('merge-images');
     const Canvas = require('canvas');
 
-    mergeImages([`downloaded/${userId}-profile.jpg`, 'static/watermask240.png'], {
+    mergeImages([`downloaded/${userId}-profile.jpg`, 'static/watermask800.png'], {
       Canvas: Canvas
     })
       .then(b64 => {

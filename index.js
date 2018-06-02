@@ -62,7 +62,8 @@ function handleEvent(event) {
           return createWaterMaskFromMessage(message.id, replyToken);
           break;
         default:
-          return createWaterMaskFromProfile(userId, replyToken);
+          return;
+        // return createWaterMaskFromProfile(userId, replyToken);
       }
     case 'follow':
       return createWaterMaskFromProfile(userId, replyToken);

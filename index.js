@@ -125,9 +125,9 @@ function createWaterMaskThenReply(fileId, replyToken, firstTime) {
       let ms;
       if (firstTime) {
         ms = [
-          createTextMessage('ขอบคุณที่สนใจ\n- นี่คือรูปจากโปรไฟล์ไลน์ของคุณ\n- คุณสามารถใช้รูปอื่นได้ โดยการส่งรูปให้กับบอททางนี้ได้เลย\n- แบ่งปันบอทนี้ให้เพื่อนง่ายๆ แค่แชร์ข้อความข้างล่างนี้ ให้เพื่อนของคุณ'),
+          createTextMessage('ขอบคุณที่สนใจ\n- นี่คือรูปจากโปรไฟล์ไลน์ของคุณ\n- คุณสามารถใช้รูปอื่นได้ โดยการส่งรูปให้กับบอททางนี้ได้เลย\n- แบ่งปันบอทนี้ให้เพื่อนง่ายๆ แค่เชิญเพื่อนเข้ากลุ่มนี้หรือแชร์ข้อความข้างล่างนี้ ให้เพื่อนของคุณ'),
           createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId)),
-          createTextMessage('สร้างรูปโปรไฟล์ React BKK 3.0.0 ง่ายๆ ได้ที่\nline://ti/p/@zya0740l'),
+          createTextMessage('สร้างรูปโปรไฟล์ React BKK 3.0.0 ง่ายๆ ได้ที่\nhttps://line.me/R/ti/g/3VpVt19FKL'),
         ];
       } else {
         ms = [createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId))];

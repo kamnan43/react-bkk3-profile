@@ -39,6 +39,9 @@ app.post('/webhooks', lineSdk.middleware(config), (req, res) => {
 function handleEvent(event) {
   console.log(event);
   var userId = event.source.userId;
+  if (userId === 'Udeadbeefdeadbeefdeadbeefdeadbeef') {
+    return;
+  }
   var replyToken = event.replyToken;
   if (!userId) {
     return;
@@ -96,6 +99,8 @@ function downloadProfilePicture(userId, pictureUrl) {
     });
   }).then(() => {
     return cp.execSync(`convert -resize 240x jpeg: ${getProfilePath(userId)} jpeg: ${getProfilePreviewPath(userId)}`);
+  }).then(() => {
+    return addWaterMask(userId);
   }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') });
 }
 
@@ -112,6 +117,26 @@ function createImageMessage(originalContentUrl, previewImageUrl) {
     originalContentUrl: originalContentUrl,
     previewImageUrl
   };
+}
+
+function addWaterMask(userId) {
+  return new Promise((resolve, reject) => {
+    const mergeImages = require('merge-images');
+    const Canvas = require('canvas');
+
+    mergeImages([getProfilePath(userId), 'static/watermask240.png'], {
+      Canvas: Canvas
+    })
+      .then(b64 => {
+        var data = b64.replace(/^data:image\/\w+;base64,/, "");
+        var buf = new Buffer(data, 'base64');
+        fs.writeFile(getProfilePath(userId), buf);
+        resolve();
+      }).catch((error) => {
+        console.log('mergeImages Error', error + '');
+        reject();
+      });
+  });
 }
 
 // listen on port

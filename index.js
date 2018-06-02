@@ -159,7 +159,11 @@ function addWaterMask(fileId) {
     const Canvas = require('canvas');
 
     mergeImages([`downloaded/${fileId}-profile.jpg`, 'static/watermask800.png'], {
-      Canvas: Canvas
+      Canvas: Canvas,
+      format: 'image/jpeg',
+      quality: 1,
+      width: 800,
+      height: 800
     })
       .then(b64 => {
         var data = b64.replace(/^data:image\/\w+;base64,/, "");

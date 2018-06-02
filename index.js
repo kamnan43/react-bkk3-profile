@@ -56,7 +56,13 @@ function handleEvent(event) {
         //       return line.replyMessage(replyToken, [createImageMessage(getProfileUrl(userId), getProfilePreviewUrl(userId))]);
         //     });
         default:
-          return line.replyMessage(replyToken, [createTextMessage('not support!')]);
+          return line.getProfile(userId)
+            .then((profile) => {
+              return downloadProfilePicture(userId, profile.pictureUrl)
+            })
+            .then(() => {
+              return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
+            });
       }
     case 'follow':
       return line.getProfile(userId)
@@ -64,8 +70,12 @@ function handleEvent(event) {
           return downloadProfilePicture(userId, profile.pictureUrl)
         })
         .then(() => {
+          return cp.execSync(`convert -resize 240x jpeg: ${getProfilePath(userId)} jpeg: ${getProfilePreviewPath(userId)}`);
+        }).then(() => {
+          return addWaterMask(userId);
+        }).then(() => {
           return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
-        });
+        }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
   }
 }
 
@@ -113,11 +123,7 @@ function downloadProfilePicture(userId, pictureUrl) {
       response.on('end', () => resolve(getProfilePath(userId)));
       response.on('error', reject);
     });
-  }).then(() => {
-    return cp.execSync(`convert -resize 240x jpeg: ${getProfilePath(userId)} jpeg: ${getProfilePreviewPath(userId)}`);
-  }).then(() => {
-    return addWaterMask(userId);
-  }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') });
+  });
 }
 
 function createTextMessage(text) {
@@ -136,6 +142,7 @@ function createImageMessage(originalContentUrl, previewImageUrl) {
 }
 
 function addWaterMask(userId) {
+  console.log('addWaterMask');
   return new Promise((resolve, reject) => {
     const mergeImages = require('merge-images');
     const Canvas = require('canvas');

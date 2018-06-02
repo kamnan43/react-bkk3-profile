@@ -97,7 +97,7 @@ function getProfilePreviewPath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-profile-preview.jpg`);
 }
 
-function getreactPreviewPath(userId) {
+function getReactPreviewPath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-react-preview.jpg`);
 }
 

@@ -120,8 +120,11 @@ function downloadContent(messageId) {
     .then((stream) => new Promise((resolve, reject) => {
       const writable = fs.createWriteStream(getProfilePath(messageId));
       stream.pipe(writable);
-      response.on('end', () => {
-        resolve(messageId);
+      stream.on('end', () => {
+        cp.execSync(`convert -resize 800x ${getProfilePath(fileId)} ${getProfilePath(fileId)}`)
+          .then(() => {
+            resolve(messageId);
+          });
       });
       stream.on('error', reject);
     }));
@@ -164,7 +167,7 @@ function addWaterMask(fileId) {
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
         fs.writeFile(getReactPath(fileId), buf, () => {
-          resolve(fileId);  
+          resolve(fileId);
         });
       }).catch((error) => {
         console.log('mergeImages Error', error + '');

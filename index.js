@@ -64,7 +64,7 @@ function handleEvent(event) {
           return downloadProfilePicture(userId, profile.pictureUrl)
         })
         .then(() => {
-          return line.replyMessage(replyToken, [createImageMessage(getProfileUrl(userId), getProfilePreviewUrl(userId))]);
+          return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
         });
   }
 }
@@ -77,16 +77,32 @@ function getProfilePath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-profile.jpg`);
 }
 
+function getReactPath(userId) {
+  return path.join(__dirname, 'downloaded', `${userId}-react.jpg`);
+}
+
 function getProfilePreviewPath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-profile-preview.jpg`);
+}
+
+function getreactPreviewPath(userId) {
+  return path.join(__dirname, 'downloaded', `${userId}-react-preview.jpg`);
 }
 
 function getProfileUrl(userId) {
   return config.BASE_URL + `/downloaded/${userId}-profile.jpg?date=${Date.now()}`;
 }
 
+function getReactUrl(userId) {
+  return config.BASE_URL + `/downloaded/${userId}-react.jpg?date=${Date.now()}`;
+}
+
 function getProfilePreviewUrl(userId) {
   return config.BASE_URL + `/downloaded/${userId}-profile-preview.jpg?date=${Date.now()}`;
+}
+
+function getReactPreviewUrl(userId) {
+  return config.BASE_URL + `/downloaded/${userId}-react-preview.jpg?date=${Date.now()}`;
 }
 
 function downloadProfilePicture(userId, pictureUrl) {
@@ -128,9 +144,10 @@ function addWaterMask(userId) {
       Canvas: Canvas
     })
       .then(b64 => {
+        console.log('B64');
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
-        fs.writeFile(getProfilePath(userId), buf);
+        fs.writeFile(getReactPath(userId), buf);
         resolve();
       }).catch((error) => {
         console.log('mergeImages Error', error + '');

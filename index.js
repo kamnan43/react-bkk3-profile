@@ -103,13 +103,11 @@ function getReactPreviewUrl(userId) {
 }
 
 function downloadProfilePicture(userId, pictureUrl) {
-  console.log('B');
   return new Promise((resolve, reject) => {
     http.get(pictureUrl, function (response) {
       const writable = fs.createWriteStream(getProfilePath(userId));
       response.pipe(writable);
       response.on('end', () => {
-        console.log('C');
         resolve(userId);
       });
       response.on('error', reject);
@@ -123,7 +121,6 @@ function downloadContent(messageId) {
       const writable = fs.createWriteStream(getProfilePath(messageId));
       stream.pipe(writable);
       response.on('end', () => {
-        console.log('C');
         resolve(messageId);
       });
       stream.on('error', reject);
@@ -151,7 +148,7 @@ function createWaterMaskThenReply(fileId, replyToken) {
       return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
     }).then(() => {
       return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactPreviewUrl(userId))]);
-    }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
+    }).catch((error) => { console.log('createWaterMaskThenReply Error', error + '') })
 }
 
 function addWaterMask(fileId) {
@@ -164,12 +161,11 @@ function addWaterMask(fileId) {
       Canvas: Canvas
     })
       .then(b64 => {
-        console.log('B64');
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
-        fs.writeFile(getReactPath(fileId), buf);
-        console.log('E');
-        resolve(fileId);
+        fs.writeFile(getReactPath(fileId), buf, () => {
+          resolve(fileId);  
+        });
       }).catch((error) => {
         console.log('mergeImages Error', error + '');
         reject();

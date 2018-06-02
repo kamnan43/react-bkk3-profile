@@ -97,7 +97,7 @@ function downloadProfilePicture(userId, pictureUrl) {
     http.get(pictureUrl, function (response) {
       const writable = fs.createWriteStream(getProfilePath(userId));
       response.pipe(writable);
-      response.on('end', resolve(userId));
+      response.on('end', () => { resolve(userId); });
       response.on('error', reject);
     });
   });
@@ -109,7 +109,7 @@ function downloadContent(messageId) {
     .then((stream) => new Promise((resolve, reject) => {
       const writable = fs.createWriteStream(getProfilePath(messageId));
       stream.pipe(writable);
-      stream.on('end', resolve(messageId));
+      response.on('end', () => { resolve(messageId); });
       stream.on('error', reject);
     }));
 }

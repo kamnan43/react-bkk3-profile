@@ -169,6 +169,7 @@ function resizeSourceImageIfExceedLINELimit(fileId) {
     }
     sourceDimensions = sizeOf(sourceImagePath);
   }
+  console.log('resizeSourceImageIfExceedLINELimit', sourceDimensions);
   return sourceDimensions;
 }
 
@@ -179,7 +180,9 @@ function resizeWaterMaskToMatchSourceImage(sourceDimensions) {
   } else {
     cp.execSync(`convert -resize ${sourceDimensions.width}x ${watermarkFullImagePath} ${watermarkFullImagePath}`);
   }
-  return sizeOf(watermarkImagePath);
+  let waterMaskSize = sizeOf(watermarkImagePath);
+  console.log('resizeSourceImageIfExceedLINELimit', waterMaskSize);
+  return waterMaskSize;
 }
 
 //////////////////////////////////////////////////////////////////////

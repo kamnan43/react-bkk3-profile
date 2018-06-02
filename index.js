@@ -147,7 +147,7 @@ function createWaterMaskThenReply(fileId, replyToken) {
     .then(() => {
       return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
     }).then(() => {
-      return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactPreviewUrl(userId))]);
+      return line.replyMessage(replyToken, [createImageMessage(getReactUrl(fileId), getReactPreviewUrl(fileId))]);
     }).catch((error) => { console.log('createWaterMaskThenReply Error', error + '') })
 }
 

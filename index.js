@@ -50,39 +50,27 @@ function handleEvent(event) {
     case 'message':
       const message = event.message;
       switch (message.type) {
-        // case 'image':
-        //   return downloadProfilePicture(userId, profile.pictureUrl)
-        //     .then(() => {
-        //       return line.replyMessage(replyToken, [createImageMessage(getProfileUrl(userId), getProfilePreviewUrl(userId))]);
-        //     });
+        case 'image':
+          return downloadContent(message.id)
+            .then((fileId) => {
+              return createWaterMaskThenReply(fileId, replyToken);
+            });
+          break;
         default:
           return line.getProfile(userId)
             .then((profile) => {
               return downloadProfilePicture(userId, profile.pictureUrl)
-            }).then((path) => {
-              if (path) {
-                return addWaterMask(userId);
-              }
-            }).then(() => {
-              return cp.execSync(`convert -resize 240x ${getReactPath(userId)} ${getReactPreviewPath(userId)}`);
-            }).then(() => {
-              return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactPreviewUrl(userId))]);
-            }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
+            }).then((fileId) => {
+              return createWaterMaskThenReply(fileId, replyToken);
+            });
       }
     case 'follow':
       return line.getProfile(userId)
         .then((profile) => {
-          console.log('A');
           return downloadProfilePicture(userId, profile.pictureUrl)
-        }).then(() => {
-          console.log('D');
-          return addWaterMask(userId);
-        }).then(() => {
-          console.log('F');
-          return cp.execSync(`convert -resize 240x ${getProfilePath(userId)} ${getProfilePreviewPath(userId)}`);
-        }).then(() => {
-          return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
-        }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
+        }).then((fileId) => {
+          return createWaterMaskThenReply(fileId, replyToken);
+        });
   }
 }
 
@@ -98,10 +86,6 @@ function getReactPath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-react.jpg`);
 }
 
-function getProfilePreviewPath(userId) {
-  return path.join(__dirname, 'downloaded', `${userId}-profile-preview.jpg`);
-}
-
 function getReactPreviewPath(userId) {
   return path.join(__dirname, 'downloaded', `${userId}-react-preview.jpg`);
 }
@@ -112,10 +96,6 @@ function getProfileUrl(userId) {
 
 function getReactUrl(userId) {
   return config.BASE_URL + `/downloaded/${userId}-react.jpg?date=${Date.now()}`;
-}
-
-function getProfilePreviewUrl(userId) {
-  return config.BASE_URL + `/downloaded/${userId}-profile-preview.jpg?date=${Date.now()}`;
 }
 
 function getReactPreviewUrl(userId) {
@@ -130,11 +110,24 @@ function downloadProfilePicture(userId, pictureUrl) {
       response.pipe(writable);
       response.on('end', () => {
         console.log('C');
-        resolve(getProfilePath(userId));
+        resolve(userId);
       });
       response.on('error', reject);
     });
   });
+}
+
+function downloadContent(messageId) {
+  return line.getMessageContent(messageId)
+    .then((stream) => new Promise((resolve, reject) => {
+      const writable = fs.createWriteStream(getProfilePath(messageId));
+      stream.pipe(writable);
+      response.on('end', () => {
+        console.log('C');
+        resolve(messageId);
+      });
+      stream.on('error', reject);
+    }));
 }
 
 function createTextMessage(text) {
@@ -152,22 +145,31 @@ function createImageMessage(originalContentUrl, previewImageUrl) {
   };
 }
 
-function addWaterMask(userId) {
+function createWaterMaskThenReply(fileId, replyToken) {
+  return addWaterMask(fileId)
+    .then(() => {
+      return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
+    }).then(() => {
+      return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactPreviewUrl(userId))]);
+    }).catch((error) => { console.log('updateMemberProfilePicture Error', error + '') })
+}
+
+function addWaterMask(fileId) {
   console.log('addWaterMask');
   return new Promise((resolve, reject) => {
     const mergeImages = require('merge-images');
     const Canvas = require('canvas');
 
-    mergeImages([`downloaded/${userId}-profile.jpg`, 'static/watermask800.png'], {
+    mergeImages([`downloaded/${fileId}-profile.jpg`, 'static/watermask800.png'], {
       Canvas: Canvas
     })
       .then(b64 => {
         console.log('B64');
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
-        fs.writeFile(getReactPath(userId), buf);
+        fs.writeFile(getReactPath(fileId), buf);
         console.log('E');
-        resolve();
+        resolve(fileId);
       }).catch((error) => {
         console.log('mergeImages Error', error + '');
         reject();

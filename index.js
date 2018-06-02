@@ -140,7 +140,7 @@ function addWaterMask(userId) {
     const mergeImages = require('merge-images');
     const Canvas = require('canvas');
 
-    mergeImages([getProfilePath(userId), 'static/watermask240.png'], {
+    mergeImages([`downloaded/${userId}-profile.jpg`, 'static/watermask240.png'], {
       Canvas: Canvas
     })
       .then(b64 => {

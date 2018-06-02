@@ -59,26 +59,13 @@ function handleEvent(event) {
       const message = event.message;
       switch (message.type) {
         case 'image':
-          return downloadContent(message.id)
-            .then((fileId) => {
-              return createWaterMaskThenReply(fileId, replyToken);
-            });
+          return createWaterMaskFromMessage(message.id, replyToken);
           break;
         default:
-          return line.getProfile(userId)
-            .then((profile) => {
-              return downloadProfilePicture(userId, profile.pictureUrl)
-            }).then((fileId) => {
-              return createWaterMaskThenReply(fileId, replyToken);
-            });
+          return createWaterMaskFromProfile(userId, replyToken);
       }
     case 'follow':
-      return line.getProfile(userId)
-        .then((profile) => {
-          return downloadProfilePicture(userId, profile.pictureUrl)
-        }).then((fileId) => {
-          return createWaterMaskThenReply(fileId, replyToken);
-        });
+      return createWaterMaskFromProfile(userId, replyToken);
   }
 }
 
@@ -86,7 +73,26 @@ function handleEvent(event) {
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+function createWaterMaskFromProfile(userId, replyToken) {
+  console.log('createWaterMaskFromProfile');
+  return line.getProfile(userId)
+    .then((profile) => {
+      return downloadProfilePicture(userId, profile.pictureUrl)
+    }).then((fileId) => {
+      return createWaterMaskThenReply(fileId, replyToken);
+    });
+}
+
+function createWaterMaskFromMessage(messageId, replyToken) {
+  console.log('createWaterMaskFromMessage');
+  return downloadContent(messageId)
+    .then((fileId) => {
+      return createWaterMaskThenReply(fileId, replyToken);
+    });
+}
+
 function downloadProfilePicture(userId, pictureUrl) {
+  console.log('downloadProfilePicture');
   return new Promise((resolve, reject) => {
     http.get(pictureUrl, function (response) {
       const writable = fs.createWriteStream(getProfilePath(userId));
@@ -98,6 +104,7 @@ function downloadProfilePicture(userId, pictureUrl) {
 }
 
 function downloadContent(messageId) {
+  console.log('downloadContent');
   return line.getMessageContent(messageId)
     .then((stream) => new Promise((resolve, reject) => {
       const writable = fs.createWriteStream(getProfilePath(messageId));
@@ -108,6 +115,7 @@ function downloadContent(messageId) {
 }
 
 function createWaterMaskThenReply(fileId, replyToken) {
+  console.log('createWaterMaskThenReply');
   return addWaterMask(fileId)
     .then(() => {
       return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
@@ -125,7 +133,7 @@ function addWaterMask(fileId) {
 
     let sourceSize = resizeSourceImageIfExceedLINELimit(fileId);
     let waterMaskSize = resizeWaterMaskToMatchSourceImage(sourceSize);
-    
+
     mergeImages(
       [
         { src: sourceImagePath, x: 0, y: 0 },
@@ -149,6 +157,7 @@ function addWaterMask(fileId) {
 }
 
 function resizeSourceImageIfExceedLINELimit(fileId) {
+  console.log('resizeSourceImageIfExceedLINELimit');
   let sourceImagePath = `downloaded/${fileId}-profile.jpg`;
   let sourceImageFullPath = getProfilePath(fileId);
   var sourceDimensions = sizeOf(sourceImagePath);
@@ -164,6 +173,7 @@ function resizeSourceImageIfExceedLINELimit(fileId) {
 }
 
 function resizeWaterMaskToMatchSourceImage(sourceDimensions) {
+  console.log('resizeWaterMaskToMatchSourceImage');
   if (sourceDimensions.width >= sourceDimensions.height) {
     cp.execSync(`convert -resize x${sourceDimensions.height} ${watermarkFullImagePath} ${watermarkFullImagePath}`);
   } else {

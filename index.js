@@ -109,7 +109,7 @@ function downloadContent(messageId) {
     .then((stream) => new Promise((resolve, reject) => {
       const writable = fs.createWriteStream(getProfilePath(messageId));
       stream.pipe(writable);
-      response.on('end', () => { resolve(messageId); });
+      stream.on('end', () => { resolve(messageId); });
       stream.on('error', reject);
     }));
 }

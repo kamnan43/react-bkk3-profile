@@ -59,8 +59,10 @@ function handleEvent(event) {
           return line.getProfile(userId)
             .then((profile) => {
               return downloadProfilePicture(userId, profile.pictureUrl)
-            }).then(() => {
-              return addWaterMask(userId);
+            }).then((path) => {
+              if (path) {
+                return addWaterMask(userId);
+              }
             }).then(() => {
               return cp.execSync(`convert -resize 240x ${getReactPath(userId)} ${getReactPreviewPath(userId)}`);
             }).then(() => {
@@ -70,10 +72,13 @@ function handleEvent(event) {
     case 'follow':
       return line.getProfile(userId)
         .then((profile) => {
+          console.log('A');
           return downloadProfilePicture(userId, profile.pictureUrl)
         }).then(() => {
+          console.log('D');
           return addWaterMask(userId);
         }).then(() => {
+          console.log('F');
           return cp.execSync(`convert -resize 240x ${getProfilePath(userId)} ${getProfilePreviewPath(userId)}`);
         }).then(() => {
           return line.replyMessage(replyToken, [createImageMessage(getReactUrl(userId), getReactUrl(userId))]);
@@ -118,11 +123,15 @@ function getReactPreviewUrl(userId) {
 }
 
 function downloadProfilePicture(userId, pictureUrl) {
+  console.log('B');
   return new Promise((resolve, reject) => {
     http.get(pictureUrl, function (response) {
       const writable = fs.createWriteStream(getProfilePath(userId));
       response.pipe(writable);
-      response.on('end', () => resolve(getProfilePath(userId)));
+      response.on('end', () => {
+        console.log('C');
+        resolve(getProfilePath(userId));
+      });
       response.on('error', reject);
     });
   });
@@ -157,6 +166,7 @@ function addWaterMask(userId) {
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
         fs.writeFile(getReactPath(userId), buf);
+        console.log('E');
         resolve();
       }).catch((error) => {
         console.log('mergeImages Error', error + '');

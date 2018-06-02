@@ -121,10 +121,8 @@ function downloadContent(messageId) {
       const writable = fs.createWriteStream(getProfilePath(messageId));
       stream.pipe(writable);
       stream.on('end', () => {
-        cp.execSync(`convert -resize 800x ${getProfilePath(messageId)} ${getProfilePath(messageId)}`)
-          .then(() => {
-            resolve(messageId);
-          });
+        cp.execSync(`convert -resize 800x ${getProfilePath(messageId)} ${getProfilePath(messageId)}`);
+        resolve(messageId);
       });
       stream.on('error', reject);
     }));

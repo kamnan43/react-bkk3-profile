@@ -70,7 +70,7 @@ function handleEvent(event) {
           return downloadProfilePicture(userId, profile.pictureUrl)
         })
         .then(() => {
-          return cp.execSync(`convert -resize 240x jpeg: ${getProfilePath(userId)} jpeg: ${getProfilePreviewPath(userId)}`);
+          return cp.execSync(`convert -resize 240x ${getProfilePath(userId)} ${getProfilePreviewPath(userId)}`);
         }).then(() => {
           return addWaterMask(userId);
         }).then(() => {

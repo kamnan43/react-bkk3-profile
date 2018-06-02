@@ -119,8 +119,8 @@ function createWaterMaskThenReply(fileId, replyToken, firstTime) {
   console.log('createWaterMaskThenReply');
   return addWaterMask(fileId)
     .then(() => {
-      return cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
-    }).then(() => {
+      //create line preview
+      cp.execSync(`convert -resize 240x ${getReactPath(fileId)} ${getReactPreviewPath(fileId)}`);
       let ms;
       if (firstTime) {
         ms = [
@@ -141,7 +141,6 @@ function addWaterMask(fileId) {
     const mergeImages = require('merge-images');
     const Canvas = require('canvas');
     let sourceImagePath = `downloaded/${fileId}-profile.jpg`;
-
     let sourceSize = resizeSourceImageIfExceedLINELimit(fileId);
     let waterMaskSize = resizeWaterMaskToMatchSourceImage(sourceSize);
 

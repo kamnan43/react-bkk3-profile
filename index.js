@@ -153,7 +153,7 @@ function addWaterMask(userId) {
         console.log('B64');
         var data = b64.replace(/^data:image\/\w+;base64,/, "");
         var buf = new Buffer(data, 'base64');
-        fs.writeFile(getReactPath(userId), buf);
+        fs.writeFile(getProfilePath(userId), buf);
         resolve();
       }).catch((error) => {
         console.log('mergeImages Error', error + '');

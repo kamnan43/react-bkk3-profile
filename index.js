@@ -172,6 +172,7 @@ function resizeSourceImageIfExceedLINELimit(fileId) {
   let sourceImagePath = `downloaded/${fileId}-profile.jpg`;
   let sourceImageFullPath = getProfilePath(fileId);
   var sourceDimensions = sizeOf(sourceImagePath);
+  console.log('resizeSourceImageIfExceedLINELimit', sourceDimensions);
   if (sourceDimensions.width > 1024 || sourceDimensions.height > 1024) {
     if (sourceDimensions.width >= sourceDimensions.height) {
       cp.execSync(`convert -resize 1024x ${sourceImageFullPath} ${sourceImageFullPath}`);
